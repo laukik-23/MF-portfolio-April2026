@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Evaluation — Nilesh Tathed</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --accent: #6c63ff;
+    --accent-glow: rgba(108, 99, 255, 0.15);
+    --green: #34d399;
+    --green-dim: rgba(52, 211, 153, 0.12);
+    --red: #f87171;
+    --red-dim: rgba(248, 113, 113, 0.12);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251, 191, 36, 0.12);
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Slide container */
+  .deck { position: relative; width: 100vw; height: 100vh; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 6vh 8vw 5vh;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(12px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .slide::-webkit-scrollbar { width: 4px; }
+  .slide::-webkit-scrollbar-track { background: transparent; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  /* Typography */
+  .slide-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  h1 { font-size: clamp(2rem, 5vw, 3.6rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; }
+  h2 { font-size: clamp(1.6rem, 3.5vw, 2.6rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.025em; }
+  h3 { font-size: clamp(1rem, 1.6vw, 1.3rem); font-weight: 600; line-height: 1.3; }
+  p, li { font-size: clamp(0.85rem, 1.2vw, 1.05rem); line-height: 1.65; color: var(--text-dim); }
+  .subtitle { font-size: clamp(1rem, 1.8vw, 1.35rem); font-weight: 400; color: var(--text-dim); margin-top: 0.75rem; max-width: 36em; }
+
+  .highlight { color: var(--accent); }
+  .green { color: var(--green); }
+  .red { color: var(--red); }
+  .amber { color: var(--amber); }
+
+  /* Stat cards */
+  .stats { display: grid; gap: 1rem; margin-top: 2rem; }
+  .stats-2 { grid-template-columns: repeat(2, 1fr); }
+  .stats-3 { grid-template-columns: repeat(3, 1fr); }
+  .stats-4 { grid-template-columns: repeat(4, 1fr); }
+
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .stat-value {
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -0.04em;
+  }
+  .stat-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .stat-sub {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-top: 0.15rem;
+  }
+  .stat.good { border-color: rgba(52, 211, 153, 0.25); background: var(--green-dim); }
+  .stat.bad { border-color: rgba(248, 113, 113, 0.25); background: var(--red-dim); }
+  .stat.warn { border-color: rgba(251, 191, 36, 0.25); background: var(--amber-dim); }
+
+  /* Bar chart */
+  .bar-group { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.85rem; }
+  .bar-row { display: flex; align-items: center; gap: 1rem; }
+  .bar-label { width: 120px; font-size: 0.8rem; font-weight: 500; text-align: right; color: var(--text-dim); flex-shrink: 0; }
+  .bar-track { flex: 1; height: 28px; background: var(--surface); border-radius: 6px; position: relative; overflow: hidden; }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    white-space: nowrap;
+  }
+  .bar-fill.portfolio { background: var(--accent); }
+  .bar-fill.benchmark { background: rgba(255,255,255,0.12); color: var(--text-dim); }
+  .bar-fill.ideal { background: rgba(52,211,153,0.25); color: var(--green); border: 1px dashed rgba(52,211,153,0.4); }
+  .bar-legend { display: flex; gap: 1.5rem; margin-top: 0.5rem; }
+  .bar-legend span { font-size: 0.72rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+  .bar-legend span::before { content: ''; width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .bar-legend .l-port::before { background: var(--accent); }
+  .bar-legend .l-bench::before { background: rgba(255,255,255,0.18); }
+  .bar-legend .l-ideal::before { background: rgba(52,211,153,0.3); }
+
+  /* Correlation grid */
+  .corr-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
+  .corr-cell {
+    background: var(--red-dim);
+    border: 1px solid rgba(248,113,113,0.2);
+    border-radius: 10px;
+    padding: 0.7rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    flex: 1 1 calc(33.33% - 0.5rem);
+    min-width: 200px;
+  }
+  .corr-cell .pair { font-size: 0.72rem; color: var(--text-dim); font-weight: 500; }
+  .corr-cell .val {
+    font-size: 1.3rem;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--red);
+  }
+  .corr-cell.extreme { border-color: rgba(248,113,113,0.45); }
+  .corr-cell.extreme .val { color: #ff5555; }
+
+  /* Table */
+  .clean-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+  .clean-table th {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .clean-table td {
+    font-size: 0.85rem;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+  .clean-table tr:last-child td { border-bottom: none; }
+  .clean-table .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+
+  /* Score ring */
+  .scorecard { display: flex; align-items: flex-start; gap: 3rem; margin-top: 2rem; }
+  .score-ring-wrap { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+  .score-ring {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    border: 6px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .score-ring::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 6px solid transparent;
+    border-top-color: var(--amber);
+    border-right-color: var(--amber);
+    transform: rotate(-15deg);
+  }
+  .score-ring .big-score {
+    font-size: 2.8rem;
+    font-weight: 900;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--amber);
+  }
+  .score-ring .big-score span { font-size: 1.2rem; color: var(--text-dim); font-weight: 500; }
+  .score-items { display: flex; flex-direction: column; gap: 0.4rem; flex: 1; }
+  .score-row { display: flex; align-items: center; gap: 0.8rem; }
+  .score-row .s-label { font-size: 0.82rem; width: 130px; color: var(--text-dim); }
+  .score-row .s-bar { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .score-row .s-fill { height: 100%; border-radius: 4px; }
+  .score-row .s-val { font-size: 0.78rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; width: 36px; text-align: right; }
+
+  /* Reco cards */
+  .reco-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; margin-top: 1.5rem; }
+  .reco {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 1.3rem;
+    display: flex;
+    gap: 0.8rem;
+  }
+  .reco-num {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+    width: 1.5rem;
+  }
+  .reco h4 { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 0.25rem; }
+  .reco p { font-size: 0.78rem; line-height: 1.55; color: var(--text-dim); }
+
+  /* Pill tags */
+  .pill {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+  }
+  .pill.green-pill { background: var(--green-dim); color: var(--green); }
+  .pill.red-pill { background: var(--red-dim); color: var(--red); }
+  .pill.amber-pill { background: var(--amber-dim); color: var(--amber); }
+
+  /* Two column layout */
+  .cols { display: flex; gap: 3rem; margin-top: 1.5rem; }
+  .cols > * { flex: 1; }
+
+  /* Overlap row */
+  .overlap-list { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
+  .overlap-row {
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 0.7rem 1.2rem;
+    gap: 1rem;
+  }
+  .overlap-row .stock-name { font-size: 0.85rem; font-weight: 600; width: 180px; }
+  .overlap-row .fund-dots { display: flex; gap: 4px; flex: 1; }
+  .overlap-row .dot {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.7;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.55rem; font-weight: 700;
+  }
+  .overlap-row .dot.empty { background: var(--surface2); opacity: 0.3; }
+  .overlap-row .pct {
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    width: 50px;
+    text-align: right;
+  }
+
+  /* Suit boxes */
+  .suit-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 1.5rem; }
+  .suit-box {
+    border-radius: 14px;
+    padding: 1.5rem;
+    border: 1px solid;
+  }
+  .suit-box.yes { background: var(--green-dim); border-color: rgba(52,211,153,0.2); }
+  .suit-box.no { background: var(--red-dim); border-color: rgba(248,113,113,0.2); }
+  .suit-box h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.7rem; }
+  .suit-box.yes h4 { color: var(--green); }
+  .suit-box.no h4 { color: var(--red); }
+  .suit-box li { font-size: 0.82rem; color: var(--text-dim); margin-bottom: 0.3rem; list-style: none; padding-left: 1.2em; position: relative; }
+  .suit-box li::before { position: absolute; left: 0; }
+  .suit-box.yes li::before { content: '\2713'; color: var(--green); }
+  .suit-box.no li::before { content: '\2717'; color: var(--red); }
+
+  /* Nav */
+  .nav {
+    position: fixed;
+    bottom: 0.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    z-index: 100;
+    background: rgba(18,18,26,0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.25rem 0.7rem;
+  }
+  .nav-dot { display: none; }
+  .nav-arrow {
+    background: none; border: none; color: var(--text-dim);
+    cursor: pointer; font-size: 0.85rem; padding: 0.15rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 0.2s;
+  }
+  .nav-arrow:hover { color: var(--text); }
+  .slide-counter {
+    font-size: 0.6rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    min-width: 2rem;
+    text-align: center;
+  }
+
+  /* Progress bar at top */
+  .progress {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--surface);
+    z-index: 100;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .slide { padding: 4vh 6vw 5vh; }
+    .stats-3, .stats-4 { grid-template-columns: repeat(2, 1fr); }
+    .reco-grid { grid-template-columns: 1fr; }
+    .cols { flex-direction: column; gap: 1.5rem; }
+    .scorecard { flex-direction: column; align-items: center; }
+    .corr-cell { flex: 1 1 calc(50% - 0.5rem); }
+    .suit-cols { grid-template-columns: 1fr; }
+  }
+
+  /* Analogy callout */
+  .analogy {
+    background: var(--accent-glow);
+    border: 1px solid rgba(108,99,255,0.2);
+    border-radius: 12px;
+    padding: 0.8rem 1.2rem;
+    margin-top: 0.8rem;
+    font-size: 0.82rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .analogy::before {
+    content: '💡';
+    margin-right: 0.5rem;
+  }
+
+  /* Source citation */
+  .source {
+    margin-top: 0.6rem;
+    padding-top: 0;
+    font-size: 0.62rem;
+    color: rgba(136,136,160,0.6);
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+  }
+  .source a {
+    color: rgba(108,99,255,0.55);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .source a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 0: Title -->
+  <div class="slide active" data-slide="0">
+    <div class="slide-label">Portfolio Evaluation</div>
+    <h1>How Strong Is<br>Nilesh Tathed's<br><span class="highlight">Mutual Fund Portfolio?</span></h1>
+    <p class="subtitle">An honest look at 9 SIP mutual funds — what's working, what's not, and what to do next.</p>
+    <div class="stats stats-3" style="margin-top:2.5rem; max-width: 650px;">
+      <div class="stat">
+        <div class="stat-value" style="font-size:1.6rem;">9</div>
+        <div class="stat-label">Funds</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" style="font-size:1.6rem;">SIP</div>
+        <div class="stat-label">Mode</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" style="font-size:1.6rem;">~92%</div>
+        <div class="stat-label">In Equity</div>
+      </div>
+    </div>
+    <div class="source">Data: Nilesh Tathed SIP Hypothetical Report &amp; MF Portfolio Report (Patron Finserve)</div>
+  </div>
+
+  <!-- SLIDE 1: The Good News -->
+  <div class="slide" data-slide="1">
+    <div class="slide-label">The Good News</div>
+    <h2>Returns have been <span class="green">excellent</span></h2>
+    <p class="subtitle">Over the last 10 years, this portfolio has significantly beaten the market.</p>
+    <div class="stats stats-4" style="max-width:900px;">
+      <div class="stat good">
+        <div class="stat-value green">19.3%</div>
+        <div class="stat-label">Annualized Return</div>
+        <div class="stat-sub">vs 12.7% benchmark</div>
+      </div>
+      <div class="stat good">
+        <div class="stat-value green">484%</div>
+        <div class="stat-label">Total Growth</div>
+        <div class="stat-sub">Over 10 years</div>
+      </div>
+      <div class="stat good">
+        <div class="stat-value green">0.83</div>
+        <div class="stat-label">Sharpe Ratio</div>
+        <div class="stat-sub">Good risk-adjusted return</div>
+      </div>
+      <div class="stat good">
+        <div class="stat-value green">+4.5%</div>
+        <div class="stat-label">Alpha (10yr)</div>
+        <div class="stat-sub">Consistent outperformance</div>
+      </div>
+    </div>
+    <div class="analogy">
+      <strong>In plain English:</strong> For every unit of risk taken, the portfolio has generated good returns. "Alpha" means it beat the market even after accounting for risk — and it's done this consistently.
+    </div>
+    <div class="source">Data: Hypothetical SIP Report pp. 8-9 (returns, Sharpe, Alpha vs BSE 100) · Sharpe scale per <a href="https://corporatefinanceinstitute.com/resources/career-map/sell-side/risk-management/sharpe-ratio-definition-formula/" target="_blank">Corporate Finance Institute</a></div>
+  </div>
+
+  <!-- SLIDE 2: The Big Problem — Correlation -->
+  <div class="slide" data-slide="2">
+    <div class="slide-label">The Big Problem</div>
+    <h2>These funds are almost <span class="red">identical</span></h2>
+    <p class="subtitle">Correlation measures how similarly two funds move. Below 0.70 is good. <strong>Every pair here is above 0.80.</strong></p>
+    <div class="corr-grid">
+      <div class="corr-cell extreme"><div class="pair">HDFC Flexi Cap vs SBI Contra</div><div class="val">0.95</div></div>
+      <div class="corr-cell extreme"><div class="pair">Bank of India Mfg vs SBI Contra</div><div class="val">0.92</div></div>
+      <div class="corr-cell extreme"><div class="pair">Bandhan Small vs Bank of India Mfg</div><div class="val">0.91</div></div>
+      <div class="corr-cell"><div class="pair">Bandhan Small vs Invesco Mid</div><div class="val">0.89</div></div>
+      <div class="corr-cell"><div class="pair">Bank of India Mfg vs HDFC Flexi</div><div class="val">0.88</div></div>
+      <div class="corr-cell"><div class="pair">Bank of India Mfg vs Invesco Mid</div><div class="val">0.87</div></div>
+    </div>
+    <div class="analogy">
+      <strong>Think of it this way:</strong> Owning 9 funds that all move together is like buying 9 umbrellas of the same colour. When one fails in a storm, they all fail. True diversification means owning assets that behave differently from each other.
+    </div>
+    <div class="source">Data: MF Portfolio Report pp. 8-9 (3-Year Correlation Matrix) · Correlation thresholds per <a href="https://analystnotes.com/cfa-study-notes-correlation-and-diversification.html" target="_blank">CFA Study Notes</a> &amp; <a href="https://blogs.cfainstitute.org/investor/2014/04/11/diversification/" target="_blank">CFA Institute</a></div>
+  </div>
+
+  <!-- SLIDE 3: Stock Overlap -->
+  <div class="slide" data-slide="3">
+    <div class="slide-label">Overlap Issue</div>
+    <h2>Same stocks, <span class="red">repeated everywhere</span></h2>
+    <p class="subtitle">Top holdings appear in 4 to 6 of the 9 funds. You're paying fees on 9 funds but getting duplicate bets.</p>
+    <div class="overlap-list">
+      <div class="overlap-row">
+        <div class="stock-name">Axis Bank</div>
+        <div class="fund-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div></div>
+        <div class="pct red">6 / 9</div>
+      </div>
+      <div class="overlap-row">
+        <div class="stock-name">State Bank of India</div>
+        <div class="fund-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div></div>
+        <div class="pct red">6 / 9</div>
+      </div>
+      <div class="overlap-row">
+        <div class="stock-name">HDFC Bank</div>
+        <div class="fund-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div></div>
+        <div class="pct amber">5 / 9</div>
+      </div>
+      <div class="overlap-row">
+        <div class="stock-name">ICICI Bank</div>
+        <div class="fund-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div></div>
+        <div class="pct amber">5 / 9</div>
+      </div>
+      <div class="overlap-row">
+        <div class="stock-name">Larsen & Toubro</div>
+        <div class="fund-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div></div>
+        <div class="pct amber">5 / 9</div>
+      </div>
+      <div class="overlap-row">
+        <div class="stock-name">Reliance Industries</div>
+        <div class="fund-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div><div class="dot empty"></div></div>
+        <div class="pct">4 / 9</div>
+      </div>
+    </div>
+    <p style="margin-top:1rem; font-size:0.82rem;"><span class="red" style="font-weight:600;">Financial Services alone = 28.4%</span> of the portfolio — and there's <em>still</em> a dedicated banking fund on top of that.</p>
+    <div class="source">Data: Hypothetical SIP Report pp. 12-17 (Stock Intersection Analysis)</div>
+  </div>
+
+  <!-- SLIDE 4: Asset Allocation -->
+  <div class="slide" data-slide="4">
+    <div class="slide-label">Asset Mix</div>
+    <h2>Almost <span class="red">everything</span> is in Indian stocks</h2>
+    <p class="subtitle">A well-built long-term portfolio spreads across asset types. This one doesn't.</p>
+    <div style="max-width:750px; margin-top: 0.5rem;">
+      <div class="bar-group">
+        <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
+          <span class="pill amber-pill">This Portfolio</span>
+          <span class="pill green-pill">Ideal Range</span>
+        </div>
+
+        <div><p style="font-size:0.78rem; font-weight:600; color:var(--text); margin-bottom:0.3rem;">Equity</p></div>
+        <div class="bar-row">
+          <div class="bar-track">
+            <div class="bar-fill portfolio" style="width:92%;">92%</div>
+          </div>
+        </div>
+        <div class="bar-row" style="margin-top:-0.3rem;">
+          <div class="bar-track">
+            <div class="bar-fill ideal" style="width:75%;">60 – 80%</div>
+          </div>
+        </div>
+
+        <div style="margin-top:0.8rem;"><p style="font-size:0.78rem; font-weight:600; color:var(--text); margin-bottom:0.3rem;">Fixed Income (Bonds)</p></div>
+        <div class="bar-row">
+          <div class="bar-fill portfolio" style="width:2.6%; min-width:40px; border-radius:6px;">1.3%</div>
+        </div>
+        <div class="bar-row" style="margin-top:-0.3rem;">
+          <div class="bar-track">
+            <div class="bar-fill ideal" style="width:25%;">15 – 30%</div>
+          </div>
+        </div>
+
+        <div style="margin-top:0.8rem;"><p style="font-size:0.78rem; font-weight:600; color:var(--text); margin-bottom:0.3rem;">Gold / Alternatives</p></div>
+        <div class="bar-row">
+          <div class="bar-fill portfolio" style="width:2%; min-width:36px; border-radius:6px;">0.3%</div>
+        </div>
+        <div class="bar-row" style="margin-top:-0.3rem;">
+          <div class="bar-track">
+            <div class="bar-fill ideal" style="width:10%;">5 – 10%</div>
+          </div>
+        </div>
+
+        <div style="margin-top:0.8rem;"><p style="font-size:0.78rem; font-weight:600; color:var(--text); margin-bottom:0.3rem;">International</p></div>
+        <div class="bar-row">
+          <div class="bar-fill portfolio" style="width:2%; min-width:36px; border-radius:6px;">0.6%</div>
+        </div>
+        <div class="bar-row" style="margin-top:-0.3rem;">
+          <div class="bar-track">
+            <div class="bar-fill ideal" style="width:17%;">10 – 20%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="analogy">
+      <strong>Why this matters:</strong> Bonds and gold tend to hold up when stocks fall. Without them, the entire portfolio sinks together during a crash — there's no safety net.
+    </div>
+    <div class="source">Portfolio data: Both reports pp. 4-5 · Ideal ranges are common financial planning guidelines (see <a href="https://www.morganstanley.com/ideas/60-40-investment-portfolio-future" target="_blank">Morgan Stanley</a>, <a href="https://resonanzcapital.com/insights/the-60/40-illusion-rethinking-portfolio-resilience-in-a-changed-world" target="_blank">Resonanz Capital</a>); not formal MPT or SEBI prescriptions</div>
+  </div>
+
+  <!-- SLIDE 5: Sector Tilt -->
+  <div class="slide" data-slide="5">
+    <div class="slide-label">Sector Balance</div>
+    <h2>Heavy on <span class="amber">cyclicals</span>, light on <span class="highlight">defensives</span></h2>
+    <p class="subtitle">The portfolio bets big on sectors that do well in booms but suffer in downturns, while underweighting stable sectors.</p>
+    <div class="cols">
+      <div>
+        <h3 style="margin-bottom:0.8rem;"><span class="amber">Overweight</span> <span style="font-weight:400;color:var(--text-dim);font-size:0.85rem;">(more than market)</span></h3>
+        <table class="clean-table">
+          <tr><th>Sector</th><th>Portfolio</th><th>Market</th></tr>
+          <tr><td>Cyclical Stocks (total)</td><td class="mono amber">59.0%</td><td class="mono">52.6%</td></tr>
+          <tr><td>Consumer Cyclical</td><td class="mono amber">17.0%</td><td class="mono">10.7%</td></tr>
+          <tr><td>Real Estate</td><td class="mono amber">4.2%</td><td class="mono">0.3%</td></tr>
+          <tr><td>Financial Services</td><td class="mono amber">28.4%</td><td class="mono">28.0%</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.8rem;"><span class="highlight">Underweight</span> <span style="font-weight:400;color:var(--text-dim);font-size:0.85rem;">(less than market)</span></h3>
+        <table class="clean-table">
+          <tr><th>Sector</th><th>Portfolio</th><th>Market</th></tr>
+          <tr><td>Technology</td><td class="mono highlight">5.6%</td><td class="mono">10.1%</td></tr>
+          <tr><td>Energy</td><td class="mono highlight">4.9%</td><td class="mono">9.8%</td></tr>
+          <tr><td>Consumer Defensive</td><td class="mono highlight">2.3%</td><td class="mono">7.6%</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="analogy">
+      <strong>Cyclical sectors</strong> (banks, real estate, consumer goods) boom when the economy grows but crash hard in recessions. <strong>Defensive sectors</strong> (energy, FMCG, healthcare) are more stable because people always need essentials.
+    </div>
+    <div class="source">Data: Hypothetical SIP Report pp. 12-17 (Sector Allocation vs BSE 100 benchmark)</div>
+  </div>
+
+  <!-- SLIDE 6: Risk Reality -->
+  <div class="slide" data-slide="6">
+    <div class="slide-label">Risk Reality</div>
+    <h2>What happens when <span class="red">markets fall?</span></h2>
+    <p class="subtitle">This portfolio carries moderately high to high risk. Here's what past crashes looked like.</p>
+    <div class="stats stats-3" style="max-width:750px;">
+      <div class="stat bad">
+        <div class="stat-value red">-30%</div>
+        <div class="stat-label">Worst 1-Year Drop</div>
+        <div class="stat-sub">Apr 2019 – Mar 2020</div>
+      </div>
+      <div class="stat bad">
+        <div class="stat-value red">-27%</div>
+        <div class="stat-label">Worst 3-Month Drop</div>
+        <div class="stat-sub">Jan – Mar 2020 (COVID)</div>
+      </div>
+      <div class="stat warn">
+        <div class="stat-value amber">1.00</div>
+        <div class="stat-label">Beta</div>
+        <div class="stat-sub">Falls exactly as much as the market</div>
+      </div>
+    </div>
+    <div class="cols" style="margin-top:1.5rem;">
+      <div>
+        <h3 style="margin-bottom:0.6rem;">Why the risk is high</h3>
+        <ul style="padding-left:1.2rem; display:flex; flex-direction:column; gap:0.35rem;">
+          <li>92% equity — virtually no bonds or gold to cushion falls</li>
+          <li>Heavy mid & small-cap tilt (43%) — these fall harder in downturns</li>
+          <li>99.3% invested in India only — no global safety net</li>
+          <li>All funds move together (high correlation)</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.6rem;">Cap-size split</h3>
+        <div style="display:flex; gap:0.3rem; height:28px; border-radius:6px; overflow:hidden; font-size:0.72rem; font-weight:600;">
+          <div style="background:var(--accent); width:44.6%; display:flex; align-items:center; justify-content:center;">Large 44.6%</div>
+          <div style="background:rgba(108,99,255,0.5); width:22.4%; display:flex; align-items:center; justify-content:center;">Mid 22.4%</div>
+          <div style="background:rgba(108,99,255,0.28); width:21.3%; display:flex; align-items:center; justify-content:center;">Small 21.3%</div>
+          <div style="background:var(--surface2); width:11.7%; display:flex; align-items:center; justify-content:center; color:var(--text-dim);">Other</div>
+        </div>
+        <p style="margin-top:0.5rem; font-size:0.78rem;">Mid + Small caps make up <strong>43.7%</strong> — significantly more volatile than a benchmark-weight portfolio.</p>
+      </div>
+    </div>
+    <div class="source">Drawdown data: Hypothetical SIP Report pp. 8-9 · Cap-size &amp; country split: MF Portfolio Report pp. 4-5 · Beta: Hypothetical SIP Report</div>
+  </div>
+
+  <!-- SLIDE 7: Scorecard -->
+  <div class="slide" data-slide="7">
+    <div class="slide-label">Overall Verdict</div>
+    <h2>Score: <span class="amber">5 out of 10</span></h2>
+    <p class="subtitle">Strong returns mask poor portfolio construction. The engine is powerful, but the vehicle isn't built safely.</p>
+    <div class="scorecard">
+      <div class="score-ring-wrap">
+        <div class="score-ring">
+          <div class="big-score">5<span>/10</span></div>
+        </div>
+        <div style="font-size:0.75rem; color:var(--text-dim); text-align:center;">Overall</div>
+      </div>
+      <div class="score-items">
+        <div class="score-row"><div class="s-label">Returns</div><div class="s-bar"><div class="s-fill" style="width:90%; background:var(--green);"></div></div><div class="s-val green">9</div></div>
+        <div class="score-row"><div class="s-label">Sharpe Ratio</div><div class="s-bar"><div class="s-fill" style="width:70%; background:var(--green);"></div></div><div class="s-val green">7</div></div>
+        <div class="score-row"><div class="s-label">Fund Selection</div><div class="s-bar"><div class="s-fill" style="width:60%; background:var(--amber);"></div></div><div class="s-val amber">6</div></div>
+        <div class="score-row"><div class="s-label">Sector Balance</div><div class="s-bar"><div class="s-fill" style="width:40%; background:var(--red);"></div></div><div class="s-val red">4</div></div>
+        <div class="score-row"><div class="s-label">Diversification</div><div class="s-bar"><div class="s-fill" style="width:30%; background:var(--red);"></div></div><div class="s-val red">3</div></div>
+        <div class="score-row"><div class="s-label">Asset Allocation</div><div class="s-bar"><div class="s-fill" style="width:30%; background:var(--red);"></div></div><div class="s-val red">3</div></div>
+        <div class="score-row"><div class="s-label">Risk Management</div><div class="s-bar"><div class="s-fill" style="width:30%; background:var(--red);"></div></div><div class="s-val red">3</div></div>
+      </div>
+    </div>
+    <div class="source">Scores derived from analysis of both reports using correlation, risk metrics, sector data, and asset allocation against standard portfolio management frameworks</div>
+  </div>
+
+  <!-- SLIDE 8: Recommendations -->
+  <div class="slide" data-slide="8">
+    <div class="slide-label">What To Do</div>
+    <h2>6 changes to build a <span class="green">stronger</span> portfolio</h2>
+    <div class="reco-grid">
+      <div class="reco">
+        <div class="reco-num">01</div>
+        <div>
+          <h4>Cut from 9 funds to 5-6</h4>
+          <p>Keep HDFC Flexi Cap, Invesco Mid Cap, Bandhan Small Cap as core. Remove highly correlated duplicates like SBI Contra (0.95 correlation with HDFC Flexi).</p>
+        </div>
+      </div>
+      <div class="reco">
+        <div class="reco-num">02</div>
+        <div>
+          <h4>Add bonds / fixed income (15-20%)</h4>
+          <p>A short-duration or dynamic bond fund acts as a shock absorber during equity crashes, reducing overall portfolio volatility.</p>
+        </div>
+      </div>
+      <div class="reco">
+        <div class="reco-num">03</div>
+        <div>
+          <h4>Add gold (5-10%)</h4>
+          <p>Gold typically rises when stocks fall. A gold ETF or fund adds a layer of protection that this portfolio completely lacks.</p>
+        </div>
+      </div>
+      <div class="reco">
+        <div class="reco-num">04</div>
+        <div>
+          <h4>Remove DSP Banking & Financial</h4>
+          <p>The portfolio already has 28% in financials from other funds. A dedicated banking fund creates dangerous sector concentration.</p>
+        </div>
+      </div>
+      <div class="reco">
+        <div class="reco-num">05</div>
+        <div>
+          <h4>Add international exposure (10-15%)</h4>
+          <p>A US or global equity fund reduces single-country risk. When India underperforms, other markets can compensate.</p>
+        </div>
+      </div>
+      <div class="reco">
+        <div class="reco-num">06</div>
+        <div>
+          <h4>Rebalance annually</h4>
+          <p>Set a schedule to review and rebalance the portfolio yearly. This locks in gains and maintains your target allocation.</p>
+        </div>
+      </div>
+    </div>
+    <div class="source">Recommendations based on: <a href="https://blogs.cfainstitute.org/investor/2014/04/11/diversification/" target="_blank">CFA Institute diversification principles</a> · <a href="https://www.morningstar.com/portfolios/why-portfolio-diversification-is-about-more-than-just-correlations" target="_blank">Morningstar portfolio diversification</a> · <a href="https://www.morganstanley.com/ideas/60-40-investment-portfolio-future" target="_blank">Morgan Stanley asset allocation</a></div>
+  </div>
+
+  <!-- SLIDE 9: Suitability -->
+  <div class="slide" data-slide="9">
+    <div class="slide-label">Who Is This For?</div>
+    <h2>Is this portfolio <span class="highlight">right for you?</span></h2>
+    <p class="subtitle">This portfolio's risk level makes it suitable for a specific investor profile.</p>
+    <div class="suit-cols">
+      <div class="suit-box yes">
+        <h4>Suitable for</h4>
+        <ul>
+          <li>Aggressive investor with 10+ year horizon</li>
+          <li>High risk tolerance — comfortable seeing 30% drops</li>
+          <li>No need for this money in the near term</li>
+          <li>Believes strongly in India's long-term growth story</li>
+        </ul>
+      </div>
+      <div class="suit-box no">
+        <h4>Not suitable for</h4>
+        <ul>
+          <li>Conservative or moderate risk appetite</li>
+          <li>Anyone needing money within 5 years</li>
+          <li>Uncomfortable with concentrated equity exposure</li>
+          <li>Approaching retirement or needs stable income</li>
+        </ul>
+      </div>
+    </div>
+    <div class="analogy" style="margin-top: 1.5rem;">
+      <strong>Bottom line:</strong> The portfolio has delivered great returns, but it's running on a single engine with no backup. The recommendations above don't mean selling everything — they mean adding safety systems so the strong returns can continue with less risk of a painful crash.
+    </div>
+    <div class="source">Suitability assessment based on portfolio risk profile (30%+ historical drawdown, 92% equity, high correlation) mapped against standard investor risk categories</div>
+  </div>
+
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button class="nav-arrow" id="prev" aria-label="Previous slide">&#8592;</button>
+  <div id="dots"></div>
+  <button class="nav-arrow" id="next" aria-label="Next slide">&#8594;</button>
+  <div class="slide-counter" id="counter">1/10</div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const dotsContainer = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const progressFill = document.getElementById('progressFill');
+  let current = 0;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => go(i));
+    dotsContainer.appendChild(d);
+  });
+
+  function go(n) {
+    if (n < 0 || n >= slides.length) return;
+    slides[current].classList.remove('active');
+    dotsContainer.children[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    dotsContainer.children[current].classList.add('active');
+    counter.textContent = `${current + 1}/${slides.length}`;
+    progressFill.style.width = `${((current + 1) / slides.length) * 100}%`;
+  }
+
+  document.getElementById('prev').addEventListener('click', () => go(current - 1));
+  document.getElementById('next').addEventListener('click', () => go(current + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(current + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(current - 1); }
+    if (e.key === 'Home') { e.preventDefault(); go(0); }
+    if (e.key === 'End') { e.preventDefault(); go(slides.length - 1); }
+  });
+
+  // Touch support
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const diff = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) diff > 0 ? go(current + 1) : go(current - 1);
+  });
+</script>
+
+</body>
+</html>

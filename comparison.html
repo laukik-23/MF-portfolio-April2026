@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Comparison — Old vs New vs Recommended</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --accent: #6c63ff;
+    --accent-glow: rgba(108, 99, 255, 0.15);
+    --green: #34d399;
+    --green-dim: rgba(52, 211, 153, 0.12);
+    --red: #f87171;
+    --red-dim: rgba(248, 113, 113, 0.12);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251, 191, 36, 0.12);
+    --cyan: #22d3ee;
+    --cyan-dim: rgba(34, 211, 238, 0.12);
+  }
+
+  html { font-size: 15px; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Page structure */
+  .page {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 4rem 3.5rem;
+    min-height: 100vh;
+    page-break-after: always;
+    position: relative;
+  }
+  .page:last-child { page-break-after: avoid; }
+  .page-number {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 3.5rem;
+    font-size: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    opacity: 0.5;
+  }
+
+  /* Typography */
+  .label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.8rem;
+  }
+  h1 { font-size: 2.8rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; }
+  h2 { font-size: 1.8rem; font-weight: 700; line-height: 1.15; letter-spacing: -0.025em; margin-bottom: 0.5rem; }
+  h3 { font-size: 1.1rem; font-weight: 600; line-height: 1.3; margin-bottom: 0.4rem; }
+  h4 { font-size: 0.88rem; font-weight: 600; }
+  p, li { font-size: 0.88rem; line-height: 1.65; color: var(--text-dim); }
+  .subtitle { font-size: 1.05rem; font-weight: 400; color: var(--text-dim); margin-top: 0.6rem; max-width: 40em; }
+
+  .highlight { color: var(--accent); }
+  .green { color: var(--green); }
+  .red { color: var(--red); }
+  .amber { color: var(--amber); }
+  .cyan { color: var(--cyan); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  /* Stat cards */
+  .stats { display: grid; gap: 0.8rem; margin-top: 1.5rem; }
+  .stats-2 { grid-template-columns: repeat(2, 1fr); }
+  .stats-3 { grid-template-columns: repeat(3, 1fr); }
+  .stats-4 { grid-template-columns: repeat(4, 1fr); }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -0.04em;
+  }
+  .stat-label {
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .stat-sub { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.1rem; }
+  .stat.good { border-color: rgba(52, 211, 153, 0.25); background: var(--green-dim); }
+  .stat.bad { border-color: rgba(248, 113, 113, 0.25); background: var(--red-dim); }
+  .stat.warn { border-color: rgba(251, 191, 36, 0.25); background: var(--amber-dim); }
+  .stat.info { border-color: rgba(34, 211, 238, 0.25); background: var(--cyan-dim); }
+
+  /* Pills */
+  .pill {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 0.12rem 0.5rem;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+    vertical-align: middle;
+  }
+  .pill.green-pill { background: var(--green-dim); color: var(--green); }
+  .pill.red-pill { background: var(--red-dim); color: var(--red); }
+  .pill.amber-pill { background: var(--amber-dim); color: var(--amber); }
+  .pill.cyan-pill { background: var(--cyan-dim); color: var(--cyan); }
+  .pill.accent-pill { background: var(--accent-glow); color: var(--accent); }
+
+  /* Tables */
+  .clean-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; }
+  .clean-table th {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.5rem 0.7rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .clean-table td {
+    font-size: 0.78rem;
+    padding: 0.45rem 0.7rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+  .clean-table tr:last-child td { border-bottom: none; }
+  .clean-table .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+
+  /* Score comparison table */
+  .score-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  .score-table th {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  .score-table th:first-child { text-align: left; }
+  .score-table td {
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .score-table td:first-child {
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+  .score-table tr:last-child td { border-bottom: none; }
+  .score-table tr.total-row td {
+    border-top: 2px solid var(--border);
+    font-size: 1rem;
+    font-weight: 800;
+    padding-top: 0.8rem;
+  }
+
+  /* Bar chart */
+  .bar-group { margin-top: 1.2rem; display: flex; flex-direction: column; gap: 0.7rem; }
+  .bar-row { display: flex; align-items: center; gap: 0.8rem; }
+  .bar-label { width: 130px; font-size: 0.72rem; font-weight: 500; text-align: right; color: var(--text-dim); flex-shrink: 0; }
+  .bar-track { flex: 1; height: 24px; background: var(--surface); border-radius: 5px; position: relative; overflow: hidden; }
+  .bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+  .bar-fill.old { background: rgba(248,113,113,0.35); color: var(--red); }
+  .bar-fill.new { background: rgba(251,191,36,0.35); color: var(--amber); }
+  .bar-fill.rec { background: rgba(52,211,153,0.35); color: var(--green); }
+  .bar-fill.ideal { background: rgba(52,211,153,0.12); color: var(--green); border: 1px dashed rgba(52,211,153,0.4); }
+
+  /* Bar legend */
+  .bar-legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .bar-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .bar-legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  /* Fund cards */
+  .fund-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 1rem; }
+  .fund-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.8rem;
+  }
+  .fund-card .fund-name { font-size: 0.72rem; font-weight: 600; color: var(--text); margin-bottom: 0.15rem; }
+  .fund-card .fund-cat { font-size: 0.6rem; color: var(--text-dim); }
+  .fund-card.retained { border-left: 3px solid var(--amber); }
+  .fund-card.new-fund { border-left: 3px solid var(--cyan); }
+  .fund-card.dropped { border-left: 3px solid var(--red); opacity: 0.65; text-decoration: line-through; text-decoration-color: rgba(248,113,113,0.4); }
+  .fund-card.keep { border-left: 3px solid var(--green); }
+
+  /* Columns */
+  .cols { display: flex; gap: 2rem; margin-top: 1.2rem; }
+  .cols > * { flex: 1; }
+
+  /* Suit boxes (green/red panels) */
+  .suit-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.2rem; }
+  .suit-box {
+    border-radius: 12px;
+    padding: 1.1rem;
+    border: 1px solid;
+  }
+  .suit-box.yes { background: var(--green-dim); border-color: rgba(52,211,153,0.2); }
+  .suit-box.no { background: var(--red-dim); border-color: rgba(248,113,113,0.2); }
+  .suit-box.info-box { background: var(--cyan-dim); border-color: rgba(34,211,238,0.2); }
+  .suit-box h4 { font-size: 0.82rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .suit-box.yes h4 { color: var(--green); }
+  .suit-box.no h4 { color: var(--red); }
+  .suit-box.info-box h4 { color: var(--cyan); }
+  .suit-box li { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.2rem; list-style: none; padding-left: 1.1em; position: relative; line-height: 1.5; }
+  .suit-box li::before { position: absolute; left: 0; }
+  .suit-box.yes li::before { content: '\2713'; color: var(--green); }
+  .suit-box.no li::before { content: '\2717'; color: var(--red); }
+  .suit-box.info-box li::before { content: '\2192'; color: var(--cyan); }
+
+  /* Callout */
+  .callout {
+    background: var(--accent-glow);
+    border: 1px solid rgba(108,99,255,0.2);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .callout.warn-callout {
+    background: var(--amber-dim);
+    border-color: rgba(251,191,36,0.2);
+  }
+  .callout.red-callout {
+    background: var(--red-dim);
+    border-color: rgba(248,113,113,0.2);
+  }
+  .callout.green-callout {
+    background: var(--green-dim);
+    border-color: rgba(52,211,153,0.2);
+  }
+
+  /* Recommendation cards */
+  .reco-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.7rem; margin-top: 1rem; }
+  .reco {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    display: flex;
+    gap: 0.7rem;
+  }
+  .reco-num {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+    width: 1.3rem;
+  }
+  .reco h4 { font-size: 0.78rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+  .reco p { font-size: 0.7rem; line-height: 1.5; color: var(--text-dim); }
+
+  /* Correlation cells */
+  .corr-grid { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+  .corr-cell {
+    background: var(--red-dim);
+    border: 1px solid rgba(248,113,113,0.2);
+    border-radius: 8px;
+    padding: 0.5rem 0.7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    flex: 1 1 calc(25% - 0.4rem);
+    min-width: 150px;
+  }
+  .corr-cell .pair { font-size: 0.62rem; color: var(--text-dim); font-weight: 500; }
+  .corr-cell .val {
+    font-size: 1.1rem;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--red);
+  }
+
+  /* Arrow indicator */
+  .arrow-up { color: var(--green); }
+  .arrow-down { color: var(--red); }
+  .arrow-flat { color: var(--amber); }
+
+  /* Source line */
+  .source {
+    margin-top: 1rem;
+    font-size: 0.55rem;
+    color: rgba(136,136,160,0.4);
+    line-height: 1.4;
+  }
+
+  /* Watermark */
+  .watermark {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--cyan), var(--green));
+    opacity: 0.3;
+  }
+
+  /* Print styles */
+  @media print {
+    html { font-size: 11px; }
+    body { background: #0a0a0f; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { padding: 2rem 2.5rem; min-height: auto; }
+    .watermark { display: none; }
+  }
+
+  @media (max-width: 800px) {
+    .page { padding: 2rem 1.5rem; }
+    .stats-3, .stats-4 { grid-template-columns: repeat(2, 1fr); }
+    .fund-grid { grid-template-columns: repeat(2, 1fr); }
+    .reco-grid { grid-template-columns: 1fr; }
+    .suit-cols { grid-template-columns: 1fr; }
+    .cols { flex-direction: column; gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="watermark"></div>
+
+<!-- ===================== PAGE 1: TITLE ===================== -->
+<div class="page">
+  <div class="label">Portfolio Comparison Report</div>
+  <h1>Old Portfolio vs New Picks:<br><span class="highlight">What Changed?</span></h1>
+  <p class="subtitle">A side-by-side comparison of the original 9-fund portfolio, the revised 12-fund selection, and an optimized structure aligned to the investor's profile.</p>
+
+  <div class="stats stats-3" style="margin-top: 2.5rem;">
+    <div class="stat bad">
+      <div class="stat-label">Old Portfolio</div>
+      <div class="stat-value red">5<span style="font-size:0.9rem;color:var(--text-dim);">/10</span></div>
+      <div class="stat-sub">9 funds &middot; Feb 2026</div>
+    </div>
+    <div class="stat warn">
+      <div class="stat-label">New Picks</div>
+      <div class="stat-value amber">4<span style="font-size:0.9rem;color:var(--text-dim);">/10</span></div>
+      <div class="stat-sub">12 funds &middot; Mar 2026</div>
+    </div>
+    <div class="stat good">
+      <div class="stat-label">Optimized Target</div>
+      <div class="stat-value green">8<span style="font-size:0.9rem;color:var(--text-dim);">/10</span></div>
+      <div class="stat-sub">6-7 funds &middot; Target</div>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top: 2rem;">
+    <strong>Investor profile:</strong> Age 50-55, moderate risk tolerance, dependents, cyclical income. Standard guidance for this profile emphasises downside protection and age-appropriate asset allocation.
+  </div>
+
+  <hr class="divider" style="margin-top:2.5rem;">
+  <div style="margin-top:1rem;">
+    <div class="label">At a glance</div>
+    <h3>The new picks scored <span class="red">lower</span> than the old portfolio</h3>
+    <p style="margin-top:0.4rem;">The revision added gold, international, and multi-asset exposure. However, the strongest core fund was removed, high-correlation funds were retained, and fund count increased from 9 to 12. The improvements are meaningful but the trade-offs offset them.</p>
+  </div>
+
+  <div class="source">Prepared by independent analysis &middot; Data from MF Portfolio Report, Hypothetical SIP Report, and publicly available fund information &middot; April 2026</div>
+  <div class="page-number">1</div>
+</div>
+
+<!-- ===================== PAGE 2: FUND LINEUP ===================== -->
+<div class="page">
+  <div class="label">Fund Lineup Comparison</div>
+  <h2>What stayed, what went, what's new</h2>
+  <p class="subtitle">7 of 9 original funds were retained and 5 new ones added — expanding from 9 to 12 funds. Standard portfolio theory suggests 5-6 focused funds for optimal efficiency.</p>
+
+  <div class="cols" style="margin-top:1.5rem;">
+    <div>
+      <h3>Old Portfolio <span class="pill red-pill">9 FUNDS</span></h3>
+      <div class="fund-grid" style="grid-template-columns: 1fr;">
+        <div class="fund-card retained">
+          <div class="fund-name">Invesco India Mid Cap</div>
+          <div class="fund-cat">Mid Cap &middot; <span class="pill amber-pill">KEPT</span></div>
+        </div>
+        <div class="fund-card retained">
+          <div class="fund-name">Whiteoak Capital Large & Mid Cap</div>
+          <div class="fund-cat">Large & Mid Cap &middot; <span class="pill amber-pill">KEPT</span></div>
+        </div>
+        <div class="fund-card retained">
+          <div class="fund-name">Bandhan Small Cap</div>
+          <div class="fund-cat">Small Cap &middot; <span class="pill amber-pill">KEPT</span></div>
+        </div>
+        <div class="fund-card retained">
+          <div class="fund-name">DSP Banking & Financial Svcs</div>
+          <div class="fund-cat">Sectoral &middot; <span class="pill amber-pill">KEPT</span> <span class="pill red-pill">REVIEW</span></div>
+        </div>
+        <div class="fund-card retained">
+          <div class="fund-name">SBI Contra</div>
+          <div class="fund-cat">Contra &middot; <span class="pill amber-pill">KEPT</span> <span class="pill red-pill">REVIEW</span></div>
+        </div>
+        <div class="fund-card retained">
+          <div class="fund-name">HDFC Transport & Logistics</div>
+          <div class="fund-cat">Sectoral &middot; <span class="pill amber-pill">KEPT</span> <span class="pill red-pill">REVIEW</span></div>
+        </div>
+        <div class="fund-card retained">
+          <div class="fund-name">Bank of India Mfg & Infra</div>
+          <div class="fund-cat">Sectoral &middot; <span class="pill amber-pill">KEPT</span> <span class="pill red-pill">REVIEW</span></div>
+        </div>
+        <div class="fund-card dropped">
+          <div class="fund-name">HDFC Flexi Cap</div>
+          <div class="fund-cat">Flexi Cap &middot; <span class="pill red-pill">DROPPED</span></div>
+        </div>
+        <div class="fund-card dropped">
+          <div class="fund-name">Sundaram Multi Asset Allocation</div>
+          <div class="fund-cat">Multi Asset &middot; Replaced by Invesco</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3>New Additions <span class="pill cyan-pill">5 NEW FUNDS</span></h3>
+      <div class="fund-grid" style="grid-template-columns: 1fr;">
+        <div class="fund-card new-fund">
+          <div class="fund-name">Invesco Multi Asset Allocation</div>
+          <div class="fund-cat">Multi Asset &middot; <span class="pill green-pill">GOOD ADD</span></div>
+        </div>
+        <div class="fund-card new-fund">
+          <div class="fund-name">Whiteoak Pharma & Healthcare</div>
+          <div class="fund-cat">Sectoral - Pharma &middot; <span class="pill green-pill">GOOD ADD</span></div>
+        </div>
+        <div class="fund-card new-fund">
+          <div class="fund-name">DSP Gold ETF</div>
+          <div class="fund-cat">Gold &middot; <span class="pill green-pill">GOOD ADD</span></div>
+        </div>
+        <div class="fund-card new-fund">
+          <div class="fund-name">DSP Silver ETF</div>
+          <div class="fund-cat">Silver &middot; <span class="pill amber-pill">QUESTIONABLE</span></div>
+        </div>
+        <div class="fund-card new-fund">
+          <div class="fund-name">Edelweiss EM Opportunities</div>
+          <div class="fund-cat">International EM FoF &middot; <span class="pill red-pill">CONSIDER ALTERNATIVE</span></div>
+        </div>
+      </div>
+
+      <div class="callout red-callout" style="margin-top:1rem;">
+        <strong>Key observation:</strong> HDFC Flexi Cap — the lowest volatility fund (Std Dev 12.87), strongest diversified core, 23.25% 5-year return — was removed despite being the most effective anchor in the original portfolio.
+      </div>
+    </div>
+  </div>
+
+  <div class="source">Fund status based on revised allocation vs original portfolio and portfolio optimization analysis</div>
+  <div class="page-number">2</div>
+</div>
+
+<!-- ===================== PAGE 3: SCORECARD COMPARISON ===================== -->
+<div class="page">
+  <div class="label">Scorecard</div>
+  <h2>Head-to-head: every dimension</h2>
+  <p class="subtitle">Scores across 7 criteria. Green = good, red = needs work. The new picks improved in some areas but regressed in others.</p>
+
+  <table class="score-table" style="margin-top:1.5rem;">
+    <thead>
+      <tr>
+        <th style="width:200px;">Criteria</th>
+        <th style="width:120px;">Old Portfolio<br><span style="font-weight:400;letter-spacing:0;">(9 funds)</span></th>
+        <th style="width:40px;"></th>
+        <th style="width:120px;">New Picks<br><span style="font-weight:400;letter-spacing:0;">(12 funds)</span></th>
+        <th style="width:40px;"></th>
+        <th style="width:120px;">Optimized Target<br><span style="font-weight:400;letter-spacing:0;">(6-7 funds)</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Diversification</td>
+        <td class="red">3/10</td>
+        <td class="arrow-up" style="text-align:center;font-size:0.7rem;">+2</td>
+        <td class="amber">5/10</td>
+        <td></td>
+        <td class="green">8/10</td>
+      </tr>
+      <tr>
+        <td>Asset Allocation</td>
+        <td class="red">3/10</td>
+        <td class="arrow-up" style="text-align:center;font-size:0.7rem;">+1</td>
+        <td class="amber">4/10</td>
+        <td></td>
+        <td class="green">8/10</td>
+      </tr>
+      <tr>
+        <td>Sector Balance</td>
+        <td class="amber">4/10</td>
+        <td class="arrow-up" style="text-align:center;font-size:0.7rem;">+1</td>
+        <td class="amber">5/10</td>
+        <td></td>
+        <td class="green">7/10</td>
+      </tr>
+      <tr>
+        <td>Risk Management</td>
+        <td class="red">3/10</td>
+        <td class="arrow-up" style="text-align:center;font-size:0.7rem;">+1</td>
+        <td class="amber">4/10</td>
+        <td></td>
+        <td class="green">8/10</td>
+      </tr>
+      <tr>
+        <td>Fund Selection</td>
+        <td class="amber">6/10</td>
+        <td class="arrow-down" style="text-align:center;font-size:0.7rem;">-3</td>
+        <td class="red">3/10</td>
+        <td></td>
+        <td class="green">7/10</td>
+      </tr>
+      <tr>
+        <td>Fund Count / Efficiency</td>
+        <td class="amber">4/10</td>
+        <td class="arrow-down" style="text-align:center;font-size:0.7rem;">-2</td>
+        <td class="red">2/10</td>
+        <td></td>
+        <td class="green">8/10</td>
+      </tr>
+      <tr>
+        <td>Suitability (for profile)</td>
+        <td class="red">3/10</td>
+        <td class="arrow-up" style="text-align:center;font-size:0.7rem;">+1</td>
+        <td class="amber">4/10</td>
+        <td></td>
+        <td class="green">8/10</td>
+      </tr>
+      <tr class="total-row">
+        <td style="font-weight:700;color:var(--text);">Overall</td>
+        <td class="red">5/10</td>
+        <td class="arrow-down" style="text-align:center;font-size:0.7rem;">-1</td>
+        <td class="amber">4/10</td>
+        <td></td>
+        <td class="green">8/10</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="suit-cols" style="margin-top:1.5rem;">
+    <div class="suit-box yes">
+      <h4>Where new picks improved</h4>
+      <ul>
+        <li>Diversification +2 (added gold, international, multi-asset)</li>
+        <li>Asset allocation +1 (some non-equity exposure now)</li>
+        <li>Sector balance +1 (pharma adds defensive tilt)</li>
+        <li>Risk management +1 (gold provides crisis hedge)</li>
+      </ul>
+    </div>
+    <div class="suit-box no">
+      <h4>Where new picks regressed</h4>
+      <ul>
+        <li>Fund selection -3 (strongest core fund removed, EM fund underperforms)</li>
+        <li>Fund count -2 (9 to 12 — benchmark suggests 5-6)</li>
+        <li>Overall -1 (trade-offs offset improvements)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="page-number">3</div>
+</div>
+
+<!-- ===================== PAGE 4: ASSET ALLOCATION ===================== -->
+<div class="page">
+  <div class="label">Asset Allocation</div>
+  <h2>Where the money goes — and the <span class="green">benchmark</span> target</h2>
+  <p class="subtitle">Side-by-side asset allocation comparison assuming equal SIP split across funds.</p>
+
+  <div class="bar-legend" style="margin-top:1.5rem;">
+    <div class="bar-legend-item"><div class="bar-legend-swatch" style="background:rgba(248,113,113,0.4);"></div> Old Portfolio</div>
+    <div class="bar-legend-item"><div class="bar-legend-swatch" style="background:rgba(251,191,36,0.4);"></div> New Picks</div>
+    <div class="bar-legend-item"><div class="bar-legend-swatch" style="background:rgba(52,211,153,0.4);"></div> Recommended</div>
+  </div>
+
+  <h3 style="margin-top:1.2rem;">Domestic Equity <span class="pill red-pill">OVERWEIGHT</span></h3>
+  <div class="bar-group">
+    <div class="bar-row">
+      <div class="bar-label">Old</div>
+      <div class="bar-track"><div class="bar-fill old" style="width:92%;">~92%</div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">New</div>
+      <div class="bar-track"><div class="bar-fill new" style="width:72%;">~72%</div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Recommended</div>
+      <div class="bar-track"><div class="bar-fill rec" style="width:48%;">45-50%</div></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:1.5rem;">Debt / Fixed Income <span class="pill red-pill">CRITICALLY UNDERWEIGHT</span></h3>
+  <div class="bar-group">
+    <div class="bar-row">
+      <div class="bar-label">Old</div>
+      <div class="bar-track"><div class="bar-fill old" style="width:4%;">~1%</div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">New</div>
+      <div class="bar-track"><div class="bar-fill new" style="width:5%;">~1-2%</div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Recommended</div>
+      <div class="bar-track"><div class="bar-fill rec" style="width:23%;">20-25%</div></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:1.5rem;">Gold <span class="pill green-pill">ON TARGET</span></h3>
+  <div class="bar-group">
+    <div class="bar-row">
+      <div class="bar-label">Old</div>
+      <div class="bar-track"><div class="bar-fill old" style="width:2%;">&lt;1%</div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">New</div>
+      <div class="bar-track"><div class="bar-fill new" style="width:10%;">~10%</div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Recommended</div>
+      <div class="bar-track"><div class="bar-fill rec" style="width:9%;">7-10%</div></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:1.5rem;">International Equity</h3>
+  <div class="bar-group">
+    <div class="bar-row">
+      <div class="bar-label">Old</div>
+      <div class="bar-track"><div class="bar-fill old" style="width:2%;">&lt;1%</div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">New <span class="pill amber-pill" style="margin-left:4px;font-size:0.5rem;">EM EXPOSURE</span></div>
+      <div class="bar-track"><div class="bar-fill new" style="width:8%;">~8%</div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Recommended <span class="pill green-pill" style="margin-left:4px;font-size:0.5rem;">DEVELOPED MKT</span></div>
+      <div class="bar-track"><div class="bar-fill rec" style="width:12%;">10-15%</div></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:1.5rem;">Dynamic / Balanced <span class="pill red-pill">MISSING</span></h3>
+  <div class="bar-group">
+    <div class="bar-row">
+      <div class="bar-label">Old</div>
+      <div class="bar-track"><div class="bar-fill old" style="width:0%;min-width:30px;">0%</div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">New</div>
+      <div class="bar-track"><div class="bar-fill new" style="width:0%;min-width:30px;">0%</div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Recommended</div>
+      <div class="bar-track"><div class="bar-fill rec" style="width:13%;">10-15%</div></div>
+    </div>
+  </div>
+
+  <div class="callout red-callout" style="margin-top:1.5rem;">
+    <strong>Key gap:</strong> At ~72% domestic equity, this portfolio exceeds the 45-55% equity range that standard guidance suggests for a moderate-risk profile at this life stage. The debt allocation gap (~20% underweight) remains the most significant area for improvement.
+  </div>
+
+  <div class="page-number">4</div>
+</div>
+
+<!-- ===================== PAGE 5: CORRELATION & PROBLEMS ===================== -->
+<div class="page">
+  <div class="label">Areas Requiring Attention</div>
+  <h2>Structural observations that persist</h2>
+  <p class="subtitle">The new additions provide diversification benefits, but the core equity correlation pattern remains unchanged.</p>
+
+  <h3 style="margin-top:1.5rem;">Correlation remains elevated</h3>
+  <p>The retained equity funds continue to show high correlation. During market corrections, these funds tend to move in tandem.</p>
+
+  <div class="corr-grid">
+    <div class="corr-cell">
+      <div class="pair">HDFC Flexi Cap vs SBI Contra</div>
+      <div class="val">0.95</div>
+    </div>
+    <div class="corr-cell">
+      <div class="pair">Bank of India Mfg vs SBI Contra</div>
+      <div class="val">0.92</div>
+    </div>
+    <div class="corr-cell">
+      <div class="pair">Bandhan Small vs Bank of India Mfg</div>
+      <div class="val">0.91</div>
+    </div>
+    <div class="corr-cell">
+      <div class="pair">Bandhan Small vs Invesco Mid</div>
+      <div class="val">0.89</div>
+    </div>
+    <div class="corr-cell">
+      <div class="pair">Bank of India Mfg vs HDFC Flexi Cap</div>
+      <div class="val">0.88</div>
+    </div>
+    <div class="corr-cell">
+      <div class="pair">Bank of India Mfg vs Invesco Mid</div>
+      <div class="val">0.87</div>
+    </div>
+    <div class="corr-cell">
+      <div class="pair">Bandhan Small vs SBI Contra</div>
+      <div class="val">0.86</div>
+    </div>
+    <div class="corr-cell">
+      <div class="pair">Invesco Mid vs SBI Contra</div>
+      <div class="val">0.85</div>
+    </div>
+  </div>
+
+  <p style="margin-top:0.6rem; font-size:0.72rem; color:var(--text-dim);">Ideal diversification: correlation 0.30-0.70. <strong>Every pair above is 0.85+.</strong></p>
+
+  <hr class="divider">
+
+  <h3>Change tracker: Old vs New</h3>
+
+  <table class="clean-table">
+    <thead>
+      <tr>
+        <th>Area</th>
+        <th>Old Portfolio</th>
+        <th>New Picks</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>High correlation between equity funds</td>
+        <td class="mono red">All &gt;0.80</td>
+        <td class="mono red">All &gt;0.80</td>
+        <td><span class="pill red-pill">UNCHANGED</span></td>
+      </tr>
+      <tr>
+        <td>Too many funds / overlap</td>
+        <td class="mono amber">9 funds</td>
+        <td class="mono red">12 funds</td>
+        <td><span class="pill red-pill">WORSE</span></td>
+      </tr>
+      <tr>
+        <td>No core diversified equity fund</td>
+        <td class="mono green">HDFC Flexi Cap</td>
+        <td class="mono red">Dropped</td>
+        <td><span class="pill red-pill">WORSE</span></td>
+      </tr>
+      <tr>
+        <td>No dedicated debt allocation</td>
+        <td class="mono red">~1%</td>
+        <td class="mono red">~1-2%</td>
+        <td><span class="pill red-pill">UNCHANGED</span></td>
+      </tr>
+      <tr>
+        <td>No gold / commodity hedge</td>
+        <td class="mono red">&lt;1%</td>
+        <td class="mono green">~10%</td>
+        <td><span class="pill green-pill">FIXED</span></td>
+      </tr>
+      <tr>
+        <td>No international diversification</td>
+        <td class="mono red">&lt;1%</td>
+        <td class="mono amber">~8% (EM)</td>
+        <td><span class="pill amber-pill">PARTIAL</span></td>
+      </tr>
+      <tr>
+        <td>No defensive sector exposure</td>
+        <td class="mono red">None</td>
+        <td class="mono green">Pharma added</td>
+        <td><span class="pill green-pill">FIXED</span></td>
+      </tr>
+      <tr>
+        <td>Excessive sector/thematic bets</td>
+        <td class="mono amber">3 funds</td>
+        <td class="mono red">4 funds</td>
+        <td><span class="pill red-pill">WORSE</span></td>
+      </tr>
+      <tr>
+        <td>No Balanced Advantage Fund</td>
+        <td class="mono red">None</td>
+        <td class="mono red">None</td>
+        <td><span class="pill red-pill">UNCHANGED</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="stats stats-3" style="margin-top:1.2rem;">
+    <div class="stat good">
+      <div class="stat-value green" style="font-size:1.2rem;">2</div>
+      <div class="stat-label">Fixed</div>
+    </div>
+    <div class="stat bad">
+      <div class="stat-value red" style="font-size:1.2rem;">3</div>
+      <div class="stat-label">Got Worse</div>
+    </div>
+    <div class="stat warn">
+      <div class="stat-value amber" style="font-size:1.2rem;">4</div>
+      <div class="stat-label">Unchanged / Partial</div>
+    </div>
+  </div>
+
+  <div class="page-number">5</div>
+</div>
+
+<!-- ===================== PAGE 6: POTENTIAL REPLACEMENTS ===================== -->
+<div class="page">
+  <div class="label">Potential Replacements</div>
+  <h2>Alternative funds <span class="cyan">worth considering</span></h2>
+  <p class="subtitle">For several funds in the current selection, there are alternatives that may offer stronger diversification, longer track records, or a better fit for this risk profile.</p>
+
+  <!-- Replacement 1 -->
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.2rem; margin-top:1.5rem;">
+    <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.8rem;">
+      <span class="pill amber-pill">CURRENT</span>
+      <h4>Whiteoak Capital Large & Mid Cap</h4>
+      <span style="color:var(--text-dim); font-size:0.8rem;">&rarr;</span>
+      <span class="pill green-pill">ALTERNATIVE</span>
+      <h4 style="color:var(--green);">Parag Parikh Flexi Cap</h4>
+    </div>
+    <table class="clean-table" style="margin-top:0;">
+      <thead>
+        <tr><th></th><th>Whiteoak Large & Mid</th><th>Parag Parikh Flexi Cap</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Track record</td><td class="mono amber">~2 years</td><td class="mono green">10+ years</td></tr>
+        <tr><td>AUM</td><td class="mono">Smaller</td><td class="mono green">~60,000+ Cr</td></tr>
+        <tr><td>Mandate</td><td>Large & mid cap only</td><td class="green">Flexi — large, mid, small + international</td></tr>
+        <tr><td>International exposure</td><td class="mono red">None</td><td class="mono green">~25-30% (US stocks: Alphabet, Amazon, Microsoft)</td></tr>
+        <tr><td>Market cycles tested</td><td class="mono red">No — post-COVID launch</td><td class="mono green">Yes — 2018 correction, 2020 crash</td></tr>
+      </tbody>
+    </table>
+    <div class="callout green-callout" style="margin-top:0.6rem;">
+      <strong>Why consider this:</strong> Parag Parikh solves two gaps at once — core equity anchor <em>and</em> built-in developed market international exposure (~0.24 correlation with India). This could make the separate international fund (Edelweiss EM) redundant, simplifying the portfolio.
+    </div>
+  </div>
+
+  <!-- Replacement 2 -->
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.2rem; margin-top:1rem;">
+    <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.8rem;">
+      <span class="pill amber-pill">CURRENT</span>
+      <h4>Edelweiss EM Opportunities</h4>
+      <span style="color:var(--text-dim); font-size:0.8rem;">&rarr;</span>
+      <span class="pill green-pill">ALTERNATIVE</span>
+      <h4 style="color:var(--green);">Motilal Oswal S&P 500 Index</h4>
+    </div>
+    <table class="clean-table" style="margin-top:0;">
+      <thead>
+        <tr><th></th><th>Edelweiss EM</th><th>Motilal Oswal S&P 500</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>5-year return</td><td class="mono red">~4.8% annualized</td><td class="mono green">~12-14% in INR terms</td></tr>
+        <tr><td>AUM</td><td class="mono red">~163 Cr (very small)</td><td class="mono green">~5,000+ Cr</td></tr>
+        <tr><td>Expense ratio</td><td class="mono red">~1.5% (double layer — FoF)</td><td class="mono green">~0.5% (direct index)</td></tr>
+        <tr><td>Diversification vs India</td><td class="mono amber">Moderate — EM markets correlate in crises</td><td class="mono green">Strong — correlation ~0.24 with India</td></tr>
+        <tr><td>Currency benefit</td><td>Mixed EM currencies</td><td class="green">USD exposure — protects against INR depreciation</td></tr>
+        <tr><td>Category rank</td><td class="mono red">11 out of 14</td><td class="mono green">Top-tier index fund</td></tr>
+      </tbody>
+    </table>
+    <div class="callout green-callout" style="margin-top:0.6rem;">
+      <strong>Why consider this:</strong> Developed markets provide genuinely uncorrelated diversification. Emerging markets (including India) tend to sell off together during global risk events, reducing the diversification benefit. The S&P 500 offers a different economic cycle, USD exposure, and significantly better historical returns.
+    </div>
+  </div>
+
+  <div class="page-number">6</div>
+</div>
+
+<!-- ===================== PAGE 7: POTENTIAL REPLACEMENTS (CONT.) ===================== -->
+<div class="page">
+  <div class="label">Potential Replacements (continued)</div>
+  <h2>Stability and risk <span class="cyan">improvements</span></h2>
+
+  <!-- Replacement 3 -->
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.2rem; margin-top:1rem;">
+    <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.8rem;">
+      <span class="pill amber-pill">CURRENT</span>
+      <h4>DSP Silver ETF</h4>
+      <span style="color:var(--text-dim); font-size:0.8rem;">&rarr;</span>
+      <span class="pill green-pill">ALTERNATIVE</span>
+      <h4 style="color:var(--green);">HDFC Short Term Debt Fund</h4>
+    </div>
+    <table class="clean-table" style="margin-top:0;">
+      <thead>
+        <tr><th></th><th>DSP Silver ETF</th><th>HDFC Short Term Debt</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Risk level</td><td class="mono red">Very High — industrial commodity</td><td class="mono green">Low — short-duration bonds</td></tr>
+        <tr><td>Drawdown in crisis</td><td class="mono red">Can fall 30-40%</td><td class="mono green">Typically flat or slightly positive</td></tr>
+        <tr><td>Role in portfolio</td><td>Additional commodity exposure</td><td class="green">Stability, income, rebalancing reservoir</td></tr>
+        <tr><td>Correlation with equity</td><td class="mono amber">Moderate — partly industrial</td><td class="mono green">Very low — moves independently</td></tr>
+        <tr><td>Safe haven in downturn</td><td class="mono red">No — silver drops with risk assets</td><td class="mono green">Yes — holds value during equity drawdowns</td></tr>
+      </tbody>
+    </table>
+    <div class="callout green-callout" style="margin-top:0.6rem;">
+      <strong>Why consider this:</strong> Gold already provides commodity exposure. Replacing silver with a debt fund addresses the largest allocation gap in the portfolio (~20% underweight in fixed income) and provides the stability this risk profile calls for.
+    </div>
+  </div>
+
+  <!-- Replacement 4 -->
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.2rem; margin-top:1rem;">
+    <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.8rem;">
+      <span class="pill amber-pill">CURRENT</span>
+      <h4>SBI Contra</h4>
+      <span style="color:var(--text-dim); font-size:0.8rem;">&rarr;</span>
+      <span class="pill green-pill">ALTERNATIVE</span>
+      <h4 style="color:var(--green);">ICICI Pru Balanced Advantage Fund</h4>
+    </div>
+    <table class="clean-table" style="margin-top:0;">
+      <thead>
+        <tr><th></th><th>SBI Contra</th><th>ICICI Pru BAF</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Correlation with portfolio</td><td class="mono red">0.85-0.95 with all equity funds</td><td class="mono green">Lower — dynamic equity/debt mix</td></tr>
+        <tr><td>Unique contribution</td><td class="mono red">Minimal — overlaps with other holdings</td><td class="mono green">Auto-rebalances equity/debt based on valuations</td></tr>
+        <tr><td>Downside protection</td><td class="mono red">None — 100% equity</td><td class="mono green">Reduces equity in overvalued markets</td></tr>
+        <tr><td>Track record</td><td class="mono">Solid</td><td class="mono green">10+ years, one of the largest BAFs</td></tr>
+        <tr><td>Tax treatment</td><td>Equity</td><td class="green">Equity (65%+ equity for tax purposes)</td></tr>
+      </tbody>
+    </table>
+    <div class="callout green-callout" style="margin-top:0.6rem;">
+      <strong>Why consider this:</strong> SBI Contra has 0.85-0.95 correlation with every other equity fund in the portfolio — it adds duplication, not diversification. A Balanced Advantage Fund introduces a completely different return driver (dynamic asset allocation) and provides built-in downside management that the portfolio currently lacks.
+    </div>
+  </div>
+
+  <!-- Replacement 5 -->
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.2rem; margin-top:1rem;">
+    <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.8rem;">
+      <span class="pill amber-pill">CURRENT</span>
+      <h4>DSP Banking & Financial Services</h4>
+      <span style="color:var(--text-dim); font-size:0.8rem;">&rarr;</span>
+      <span class="pill green-pill">ALTERNATIVE</span>
+      <h4 style="color:var(--green);">Consider removing — no replacement needed</h4>
+    </div>
+    <div style="padding:0.4rem 0;">
+      <p style="font-size:0.8rem;">The portfolio already has <strong style="color:var(--text);">28.45% financial services exposure</strong> through its other holdings (HDFC Bank appears in 5 funds, ICICI Bank in 5 funds, Axis Bank in 6 funds). A dedicated banking sector fund on top of this creates concentration rather than diversification. Removing it and reallocating to any of the alternatives above would improve portfolio balance.</p>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:1.2rem;">
+    <strong>Net effect of all replacements:</strong> The portfolio would go from 12 funds to 9, gain dedicated debt and balanced advantage exposure, replace EM with developed market international, and eliminate the highest-correlation overlaps — while retaining the core equity and gold positions that are working well.
+  </div>
+
+  <div class="page-number">7</div>
+</div>
+
+<!-- ===================== PAGE 8: PROPOSED OPTIMIZATION ===================== -->
+<div class="page">
+  <div class="label">Proposed Optimization</div>
+  <h2>A potential <span class="green">path forward</span></h2>
+  <p class="subtitle">Starting from the current 12-fund selection, a restructured approach that better aligns with the investor's risk profile and goals.</p>
+
+  <div class="cols" style="margin-top:1.5rem;">
+    <div>
+      <h3 style="color:var(--red);">Remove (6 funds)</h3>
+      <div class="fund-grid" style="grid-template-columns: 1fr; margin-top:0.6rem;">
+        <div class="fund-card dropped" style="text-decoration:none; opacity:1;">
+          <div class="fund-name" style="text-decoration:line-through; text-decoration-color:rgba(248,113,113,0.5);">SBI Contra</div>
+          <div class="fund-cat">Corr. 0.92 with multiple funds — high overlap</div>
+        </div>
+        <div class="fund-card dropped" style="text-decoration:none; opacity:1;">
+          <div class="fund-name" style="text-decoration:line-through; text-decoration-color:rgba(248,113,113,0.5);">DSP Banking & Financial</div>
+          <div class="fund-cat">Portfolio already 28% financials without this</div>
+        </div>
+        <div class="fund-card dropped" style="text-decoration:none; opacity:1;">
+          <div class="fund-name" style="text-decoration:line-through; text-decoration-color:rgba(248,113,113,0.5);">HDFC Transport & Logistics</div>
+          <div class="fund-cat">83% auto stocks — concentrated cyclical exposure</div>
+        </div>
+        <div class="fund-card dropped" style="text-decoration:none; opacity:1;">
+          <div class="fund-name" style="text-decoration:line-through; text-decoration-color:rgba(248,113,113,0.5);">Bank of India Mfg & Infra</div>
+          <div class="fund-cat">0.92 correlation, overlapping thematic exposure</div>
+        </div>
+        <div class="fund-card dropped" style="text-decoration:none; opacity:1;">
+          <div class="fund-name" style="text-decoration:line-through; text-decoration-color:rgba(248,113,113,0.5);">DSP Silver ETF</div>
+          <div class="fund-cat">High volatility for this risk profile; gold covers commodity exposure</div>
+        </div>
+        <div class="fund-card dropped" style="text-decoration:none; opacity:1;">
+          <div class="fund-name" style="text-decoration:line-through; text-decoration-color:rgba(248,113,113,0.5);">Edelweiss EM Opportunities</div>
+          <div class="fund-cat">4.8% return, high fees — developed market alternative may diversify better</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3 style="color:var(--green);">Keep (6 funds)</h3>
+      <div class="fund-grid" style="grid-template-columns: 1fr; margin-top:0.6rem;">
+        <div class="fund-card keep">
+          <div class="fund-name">Whiteoak Large & Mid Cap</div>
+          <div class="fund-cat">Core equity — fills the diversified anchor role</div>
+        </div>
+        <div class="fund-card keep">
+          <div class="fund-name">Invesco India Mid Cap</div>
+          <div class="fund-cat">Mid-cap satellite allocation</div>
+        </div>
+        <div class="fund-card keep">
+          <div class="fund-name">Bandhan Small Cap</div>
+          <div class="fund-cat">Small-cap satellite (reduce allocation)</div>
+        </div>
+        <div class="fund-card keep">
+          <div class="fund-name">Invesco Multi Asset Allocation</div>
+          <div class="fund-cat">Built-in equity/debt/gold diversifier</div>
+        </div>
+        <div class="fund-card keep">
+          <div class="fund-name">Whiteoak Pharma & Healthcare</div>
+          <div class="fund-cat">Defensive sector satellite</div>
+        </div>
+        <div class="fund-card keep">
+          <div class="fund-name">DSP Gold ETF</div>
+          <div class="fund-cat">Commodity hedge / crisis protection</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" style="margin-top:1.5rem;">
+
+  <h3 style="color:var(--cyan);">Add (3 funds) — the missing pieces</h3>
+  <div class="reco-grid" style="grid-template-columns: repeat(3, 1fr); margin-top:0.8rem;">
+    <div class="reco" style="border-color:rgba(34,211,238,0.3); flex-direction:column;">
+      <h4 style="color:var(--cyan);">HDFC Flexi Cap <span class="pill cyan-pill">CORE</span></h4>
+      <p>Diversified anchor fund. Lowest volatility (Std Dev 12.87), invests across all caps. Every portfolio needs a core — this is it.</p>
+      <p style="margin-top:0.3rem;"><strong style="color:var(--text);">Target: 20-25%</strong></p>
+    </div>
+    <div class="reco" style="border-color:rgba(34,211,238,0.3); flex-direction:column;">
+      <h4 style="color:var(--cyan);">Motilal Oswal S&P 500 Index <span class="pill cyan-pill">INTERNATIONAL</span></h4>
+      <p>True developed market diversification. Correlation with India ~0.24. USD exposure protects against INR depreciation. 12-14% in INR terms over 20 years.</p>
+      <p style="margin-top:0.3rem;"><strong style="color:var(--text);">Target: 10-12%</strong></p>
+    </div>
+    <div class="reco" style="border-color:rgba(34,211,238,0.3); flex-direction:column;">
+      <h4 style="color:var(--cyan);">HDFC Short Term Debt <span class="pill cyan-pill">DEBT</span></h4>
+      <p>Essential for this age and risk profile. Provides stability during equity drawdowns, regular income, and a rebalancing reservoir. Addresses the largest allocation gap.</p>
+      <p style="margin-top:0.3rem;"><strong style="color:var(--text);">Target: 20-25%</strong></p>
+    </div>
+  </div>
+
+  <div class="page-number">8</div>
+</div>
+
+<!-- ===================== PAGE 9: TARGET ALLOCATION & SUMMARY ===================== -->
+<div class="page">
+  <div class="label">Target Allocation</div>
+  <h2>The recommended <span class="green">9-fund portfolio</span></h2>
+  <p class="subtitle">A restructured portfolio that builds on the current selection while aligning more closely with the investor's risk profile.</p>
+
+  <table class="clean-table" style="margin-top:1.5rem;">
+    <thead>
+      <tr>
+        <th>Fund</th>
+        <th>Role</th>
+        <th>Target %</th>
+        <th>Risk</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong style="color:var(--cyan);">HDFC Flexi Cap</strong></td>
+        <td>Core diversified equity</td>
+        <td class="mono green">20-25%</td>
+        <td><span class="pill green-pill">MODERATE</span></td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--cyan);">HDFC Short Term Debt</strong></td>
+        <td>Stability + income</td>
+        <td class="mono green">20-25%</td>
+        <td><span class="pill green-pill">LOW</span></td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--cyan);">Motilal Oswal S&P 500 Index</strong></td>
+        <td>International diversification</td>
+        <td class="mono green">10-12%</td>
+        <td><span class="pill amber-pill">MODERATE</span></td>
+      </tr>
+      <tr>
+        <td>Whiteoak Large & Mid Cap</td>
+        <td>Large/mid-cap equity</td>
+        <td class="mono">10-12%</td>
+        <td><span class="pill amber-pill">HIGH</span></td>
+      </tr>
+      <tr>
+        <td>Invesco India Mid Cap</td>
+        <td>Mid-cap satellite</td>
+        <td class="mono">8-10%</td>
+        <td><span class="pill amber-pill">HIGH</span></td>
+      </tr>
+      <tr>
+        <td>Bandhan Small Cap</td>
+        <td>Small-cap satellite</td>
+        <td class="mono">5-7%</td>
+        <td><span class="pill red-pill">VERY HIGH</span></td>
+      </tr>
+      <tr>
+        <td>Invesco Multi Asset Allocation</td>
+        <td>Multi-asset diversifier</td>
+        <td class="mono">8-10%</td>
+        <td><span class="pill green-pill">MODERATE</span></td>
+      </tr>
+      <tr>
+        <td>Whiteoak Pharma & Healthcare</td>
+        <td>Defensive sector</td>
+        <td class="mono">5-7%</td>
+        <td><span class="pill amber-pill">HIGH</span></td>
+      </tr>
+      <tr>
+        <td>DSP Gold ETF</td>
+        <td>Commodity hedge</td>
+        <td class="mono">7-10%</td>
+        <td><span class="pill amber-pill">MODERATE</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:1.5rem;">Resulting asset allocation</h3>
+  <div class="stats stats-4" style="margin-top:0.8rem;">
+    <div class="stat good">
+      <div class="stat-value green" style="font-size:1.4rem;">~48%</div>
+      <div class="stat-label">Domestic Equity</div>
+      <div class="stat-sub">Down from 72%</div>
+    </div>
+    <div class="stat good">
+      <div class="stat-value green" style="font-size:1.4rem;">~22%</div>
+      <div class="stat-label">Debt</div>
+      <div class="stat-sub">Up from 1-2%</div>
+    </div>
+    <div class="stat good">
+      <div class="stat-value green" style="font-size:1.4rem;">~11%</div>
+      <div class="stat-label">International</div>
+      <div class="stat-sub">Developed market</div>
+    </div>
+    <div class="stat good">
+      <div class="stat-value green" style="font-size:1.4rem;">~9%</div>
+      <div class="stat-label">Gold</div>
+      <div class="stat-sub">Crisis protection</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="label">Bottom Line</div>
+  <h2>The verdict</h2>
+
+  <div class="callout" style="margin-top:0.8rem;">
+    <strong>The revision shows clear progress</strong> — adding gold, international, and multi-asset exposure addresses real gaps. However, some trade-offs were introduced: the strongest core fund was removed, high-correlation funds were retained, and complexity increased. Overall, the revision is a <strong>lateral move</strong> — meaningful improvements in some areas, offset by new structural challenges.
+  </div>
+
+  <div class="callout green-callout" style="margin-top:0.8rem;">
+    <strong>Priority areas for this profile:</strong>
+    <br>1. A dedicated debt allocation (20%+) — standard for this age and risk profile
+    <br>2. A diversified core equity fund as the portfolio anchor
+    <br>3. Developed market international exposure (e.g. S&P 500) for lower correlation with India
+    <br>4. Fewer funds with lower inter-fund correlation — efficiency over breadth
+    <br>5. A Balanced Advantage Fund for automatic equity/debt rebalancing
+  </div>
+
+  <div class="callout warn-callout" style="margin-top:0.8rem;">
+    <strong>Highest-impact change:</strong> Adding a dedicated short-duration debt fund at 20-25% of the portfolio would significantly improve downside protection and provide a stable base for rebalancing during market corrections.
+  </div>
+
+  <div class="source" style="margin-top:2rem;">
+    Portfolio analysis &middot; Data from MF Portfolio Report, Hypothetical SIP Report, Groww, Value Research, INDmoney, Morningstar &middot; April 2026
+    <br>Reference documents: Original evaluation (Feb 2026) &middot; Revised picks evaluation (Mar 2026) &middot; Proposed restructuring (Feb 2026)
+  </div>
+  <div class="page-number">9</div>
+</div>
+
+</body>
+</html>
